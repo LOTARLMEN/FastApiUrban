@@ -13,7 +13,7 @@ router = APIRouter(prefix="/user", tags=["user"])
 @router.get("/")
 async def all_users(db: Annotated[Session, Depends(get_db)]):
     users = db.query(User).all()
-    return {'users_list': users}
+    return users
 
 
 @router.get('/user_id')
@@ -24,7 +24,6 @@ async def user_by_id(db: Annotated[Session, Depends(get_db)], user_id: int):
     return user
 
 
-# username: str first_name: str last_name: str age: int
 @router.post('/create')
 async def create_user(db: Annotated[Session, Depends(get_db)], create_user: CreateUser):
     if create_user.username is None:
@@ -32,8 +31,7 @@ async def create_user(db: Annotated[Session, Depends(get_db)], create_user: Crea
     if create_user.username in [user.username for user in db.query(User).all()]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
 
-    db.execute(insert(User).values(
-                                   username=create_user.username,
+    db.execute(insert(User).values(username=create_user.username,
                                    firstname=create_user.first_name,
                                    lastname=create_user.last_name,
                                    age=create_user.age,
